@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require key files
+        run: |
+          test -f README.md
+          test -f LICENSE
+          test -f CONTRIBUTING.md
+          test -f CODE_OF_CONDUCT.md
+          test -f SECURITY.md
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle wrapper present?
+        id: has_wrapper
+        run: |
+          if [ -f ./gradlew ]; then echo "yes=true" >> $GITHUB_OUTPUT; else echo "yes=false" >> $GITHUB_OUTPUT; fi
+
+      - name: Gradle wrapper validation
+        if: steps.has_wrapper.outputs.yes == 'true'
+        uses: gradle/wrapper-validation-action@v2
+
+      - name: Print Gradle version
+        if: steps.has_wrapper.outputs.yes == 'true'
+        run: |
+          chmod +x ./gradlew
+          ./gradlew -v
