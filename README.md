@@ -41,6 +41,19 @@
 - 设置页中提供“导出物品 CSV / 导出会员 CSV”，通过系统文件选择器创建文件
 - 价格单位为 CNY，保留两位小数
 
+## 路线图（Roadmap）
+- 功能扩展
+  - CSV 导入与数据校验
+  - 本地/云备份与恢复
+  - 列表高级筛选/排序、滑动操作
+  - 桌面小部件、通知 Snooze、通知开关细化
+  - 多语言（zh / en）与深色模式优化
+- 工程与质量
+  - Ktlint/Detekt 规范检查
+  - 单元测试（日期/阈值/DAO）与基础 UI 测试
+  - Proguard 与发布签名流程文档
+  - CI：构建/测试/Lint 集成；Dependabot 依赖更新
+
 ## 贡献
 - 欢迎提交 Issue 与 Pull Request
 - 详细流程与规范见 CONTRIBUTING.md 与 CODE_OF_CONDUCT.md

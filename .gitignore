@@ -1,0 +1,40 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gradle
+.gradle/
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android
+local.properties
+captures/
+outputs/
+*.apk
+*.aab
+*.ap_ 
+*.aapt_* 
+
+# Keystores
+*.jks
+*.keystore
+key.properties
+
+# Logs
+*.log
+
+# Generated
+.navigation/
+
+# Kotlin/Java
+out/
+
+# App specific
+app/release/
