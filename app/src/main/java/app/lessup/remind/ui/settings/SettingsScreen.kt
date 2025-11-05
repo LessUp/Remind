@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import java.io.ByteArrayInputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.text.Charsets
 
 @Composable
 fun SettingsScreen(padding: PaddingValues, vm: SettingsViewModel = hiltViewModel()) {
@@ -54,6 +59,46 @@ fun SettingsScreen(padding: PaddingValues, vm: SettingsViewModel = hiltViewModel
             }
         }
         subsCsv = null
+    }
+    val itemsImporter = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val result = runCatching {
+                val bytes = withContext(Dispatchers.IO) {
+                    ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                } ?: throw IllegalArgumentException("无法读取文件")
+                vm.importItemsCsv(ByteArrayInputStream(bytes))
+            }
+            result.onSuccess {
+                Toast.makeText(ctx, "导入物品成功（$it 条）", Toast.LENGTH_SHORT).show()
+            }.onFailure {
+                Toast.makeText(
+                    ctx,
+                    "导入物品失败：${it.localizedMessage ?: it.message ?: it.javaClass.simpleName}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+    val subsImporter = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val result = runCatching {
+                val bytes = withContext(Dispatchers.IO) {
+                    ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                } ?: throw IllegalArgumentException("无法读取文件")
+                vm.importSubsCsv(ByteArrayInputStream(bytes))
+            }
+            result.onSuccess {
+                Toast.makeText(ctx, "导入会员成功（$it 条）", Toast.LENGTH_SHORT).show()
+            }.onFailure {
+                Toast.makeText(
+                    ctx,
+                    "导入会员失败：${it.localizedMessage ?: it.message ?: it.javaClass.simpleName}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     Column(
@@ -96,6 +141,16 @@ fun SettingsScreen(padding: PaddingValues, vm: SettingsViewModel = hiltViewModel
                     subsExporter.launch("subscriptions.csv")
                 }
             }) { Text("导出会员 CSV") }
+        }
+
+        Text(text = "数据导入", style = MaterialTheme.typography.titleMedium)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(onClick = { itemsImporter.launch(arrayOf("text/csv")) }) {
+                Text("导入物品 CSV")
+            }
+            OutlinedButton(onClick = { subsImporter.launch(arrayOf("text/csv")) }) {
+                Text("导入会员 CSV")
+            }
         }
     }
 }
