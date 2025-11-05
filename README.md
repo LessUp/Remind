@@ -4,7 +4,7 @@
 - 记录物品购买与保质期，显示距到期还有多久；若无保质期，显示已购买多久
 - 记录会员订阅：名称、购买日期、价格（CNY）、到期时间、剩余天数
 - 每日概览与单项到期提醒（WorkManager + 通知）
-- 支持搜索与筛选、CSV 导出
+- 支持搜索与筛选、CSV 导入/导出
 
 ## 功能特性
 - 物品管理：名称、购买日期、保质期天数（可自动推算到期日）、备注
@@ -37,13 +37,13 @@
 3. 直接运行 app 模块（minSdk 24）
 4. 首次启动授予“通知权限”，以确保可以接收提醒
 
-## 导出 CSV
-- 设置页中提供“导出物品 CSV / 导出会员 CSV”，通过系统文件选择器创建文件
-- 价格单位为 CNY，保留两位小数
+## 导入/导出 CSV
+- 设置页提供“导入/导出物品 CSV”“导入/导出会员 CSV”，通过系统文件选择器读写文件
+- 导入时会校验必填字段、日期/时间格式与价格精度，成功后自动重建提醒计划
+- 导出价格单位为 CNY，保留两位小数
 
 ## 路线图（Roadmap）
 - 功能扩展
-  - CSV 导入与数据校验
   - 本地/云备份与恢复
   - 列表高级筛选/排序、滑动操作
   - 桌面小部件、通知 Snooze、通知开关细化
@@ -53,6 +53,12 @@
   - 单元测试（日期/阈值/DAO）与基础 UI 测试
   - Proguard 与发布签名流程文档
   - CI：构建/测试/Lint 集成；Dependabot 依赖更新
+
+## CI/CD 与发布
+- `.github/workflows/ci.yml`：在推送与 PR 时运行单元测试并构建 Debug APK，结果作为构建产物上传
+- `.github/workflows/release.yml`：推送 `v*` 标签时自动签名构建 `assembleRelease` 与 `bundleRelease`，并以标签名创建 GitHub Release
+- Release 发布前，在仓库 Secrets 中配置：`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`
+- 本地或 CI 中通过环境变量/Gradle 属性注入 `RELEASE_STORE_FILE` 等配置即可完成签名
 
 ## 贡献
 - 欢迎提交 Issue 与 Pull Request

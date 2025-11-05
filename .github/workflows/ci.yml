@@ -1,4 +1,4 @@
-name: CI
+name: Android CI
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  verify:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,17 +26,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Gradle wrapper present?
-        id: has_wrapper
-        run: |
-          if [ -f ./gradlew ]; then echo "yes=true" >> $GITHUB_OUTPUT; else echo "yes=false" >> $GITHUB_OUTPUT; fi
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
 
-      - name: Gradle wrapper validation
-        if: steps.has_wrapper.outputs.yes == 'true'
-        uses: gradle/wrapper-validation-action@v2
+      - name: Run unit tests and assemble Debug
+        run: gradle test assembleDebug --stacktrace
 
-      - name: Print Gradle version
-        if: steps.has_wrapper.outputs.yes == 'true'
-        run: |
-          chmod +x ./gradlew
-          ./gradlew -v
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
