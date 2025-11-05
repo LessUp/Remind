@@ -40,5 +40,5 @@ class StatsViewModel @Inject constructor(
         val dueSubs7 = subs.count { (it.endAt.toEpochDays() - today.toEpochDays()) in 0..threshold }
         val expiredSubs = subs.count { (it.endAt.toEpochDays() - today.toEpochDays()) < 0 }
         Stats(threshold, dueItems7, expiredItems, dueSubs7, expiredSubs)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Stats(7,0,0,0))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Stats(7,0,0,0,0))
 }
