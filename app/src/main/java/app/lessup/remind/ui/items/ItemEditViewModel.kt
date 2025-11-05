@@ -36,22 +36,23 @@ class ItemEditViewModel @Inject constructor(
     fun save(form: Form) {
         viewModelScope.launch {
             val now = Clock.System.now()
-            val e = ItemEntity(
+            val existing = form.id?.let { repo.get(it) }
+            val entity = ItemEntity(
                 id = form.id ?: 0,
                 name = form.name.trim(),
                 purchasedAt = form.purchasedAt,
                 shelfLifeDays = form.shelfLifeDays,
                 expiryAt = form.expiryAt ?: form.shelfLifeDays?.let { d -> form.purchasedAt.plus(DatePeriod(days = d)) },
                 notes = form.notes?.trim().takeIf { !it.isNullOrEmpty() },
-                createdAt = now,
+                createdAt = existing?.createdAt ?: now,
                 updatedAt = now,
             )
             if (form.id == null) {
-                val newId = repo.add(e)
-                scheduler.scheduleForItem(e.copy(id = newId))
+                val newId = repo.add(entity)
+                scheduler.scheduleForItem(entity.copy(id = newId))
             } else {
-                repo.update(e)
-                scheduler.scheduleForItem(e)
+                repo.update(entity)
+                scheduler.scheduleForItem(entity)
             }
         }
     }

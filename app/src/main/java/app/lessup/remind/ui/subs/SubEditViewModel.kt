@@ -36,7 +36,8 @@ class SubEditViewModel @Inject constructor(
     fun save(form: Form) {
         viewModelScope.launch {
             val now = Clock.System.now()
-            val e = SubscriptionEntity(
+            val existing = form.id?.let { repo.get(it) }
+            val entity = SubscriptionEntity(
                 id = form.id ?: 0,
                 name = form.name.trim(),
                 provider = form.provider?.trim().takeIf { !it.isNullOrEmpty() },
@@ -45,15 +46,15 @@ class SubEditViewModel @Inject constructor(
                 endAt = form.endAt,
                 autoRenew = form.autoRenew,
                 notes = form.notes?.trim().takeIf { !it.isNullOrEmpty() },
-                createdAt = now,
+                createdAt = existing?.createdAt ?: now,
                 updatedAt = now,
             )
             if (form.id == null) {
-                val newId = repo.add(e)
-                scheduler.scheduleForSub(e.copy(id = newId))
+                val newId = repo.add(entity)
+                scheduler.scheduleForSub(entity.copy(id = newId))
             } else {
-                repo.update(e)
-                scheduler.scheduleForSub(e)
+                repo.update(entity)
+                scheduler.scheduleForSub(entity)
             }
         }
     }
