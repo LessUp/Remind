@@ -9,6 +9,13 @@ android {
     namespace = "app.lessup.remind"
     compileSdk = 35
 
+    fun resolveCredential(name: String): String? {
+        val property = project.findProperty(name) as? String
+        if (!property.isNullOrBlank()) return property
+        val env = System.getenv(name)
+        return env?.takeIf { it.isNotBlank() }
+    }
+
     defaultConfig {
         applicationId = "app.lessup.remind"
         minSdk = 24
@@ -19,6 +26,16 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    val releaseSigningConfig = signingConfigs.create("release") {
+        val storeFilePath = resolveCredential("RELEASE_STORE_FILE")
+        if (!storeFilePath.isNullOrBlank()) {
+            storeFile = file(storeFilePath)
+            storePassword = resolveCredential("RELEASE_STORE_PASSWORD")
+            keyAlias = resolveCredential("RELEASE_KEY_ALIAS")
+            keyPassword = resolveCredential("RELEASE_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -26,6 +43,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = if (releaseSigningConfig.storeFile != null) {
+                releaseSigningConfig
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
         debug {
             isMinifyEnabled = false
