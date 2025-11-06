@@ -63,18 +63,16 @@ fun SettingsScreen(padding: PaddingValues, vm: SettingsViewModel = hiltViewModel
     val itemsImporter = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
-            val result = runCatching {
+            try {
                 val bytes = withContext(Dispatchers.IO) {
                     ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 } ?: throw IllegalArgumentException("无法读取文件")
-                vm.importItemsCsv(ByteArrayInputStream(bytes))
-            }
-            result.onSuccess {
-                Toast.makeText(ctx, "导入物品成功（$it 条）", Toast.LENGTH_SHORT).show()
-            }.onFailure {
+                val importedCount = vm.importItemsCsv(ByteArrayInputStream(bytes))
+                Toast.makeText(ctx, "导入物品成功（$importedCount 条）", Toast.LENGTH_SHORT).show()
+            } catch (t: Throwable) {
                 Toast.makeText(
                     ctx,
-                    "导入物品失败：${it.localizedMessage ?: it.message ?: it.javaClass.simpleName}",
+                    "导入物品失败：${t.localizedMessage ?: t.message ?: t.javaClass.simpleName}",
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -83,18 +81,16 @@ fun SettingsScreen(padding: PaddingValues, vm: SettingsViewModel = hiltViewModel
     val subsImporter = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
-            val result = runCatching {
+            try {
                 val bytes = withContext(Dispatchers.IO) {
                     ctx.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 } ?: throw IllegalArgumentException("无法读取文件")
-                vm.importSubsCsv(ByteArrayInputStream(bytes))
-            }
-            result.onSuccess {
-                Toast.makeText(ctx, "导入会员成功（$it 条）", Toast.LENGTH_SHORT).show()
-            }.onFailure {
+                val importedCount = vm.importSubsCsv(ByteArrayInputStream(bytes))
+                Toast.makeText(ctx, "导入会员成功（$importedCount 条）", Toast.LENGTH_SHORT).show()
+            } catch (t: Throwable) {
                 Toast.makeText(
                     ctx,
-                    "导入会员失败：${it.localizedMessage ?: it.message ?: it.javaClass.simpleName}",
+                    "导入会员失败：${t.localizedMessage ?: t.message ?: t.javaClass.simpleName}",
                     Toast.LENGTH_LONG
                 ).show()
             }
