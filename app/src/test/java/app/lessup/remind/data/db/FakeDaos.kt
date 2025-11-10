@@ -16,22 +16,35 @@ class FakeItemDao : ItemDao {
 
     override suspend fun insert(entity: ItemEntity): Long {
         val id = if (entity.id == 0L) nextId++ else entity.id
-        val stored = entity.copy(id = id)
-        items[id] = stored
-        if (id >= nextId) {
-            nextId = id + 1
-        }
-        emit()
+        store(entity.copy(id = id))
         return id
     }
 
+    override suspend fun insertAll(entities: List<ItemEntity>) {
+        entities.forEach { entity ->
+            store(entity)
+        }
+    }
+
     override suspend fun update(entity: ItemEntity) {
-        items[entity.id] = entity
-        emit()
+        store(entity)
     }
 
     override suspend fun delete(entity: ItemEntity) {
         items.remove(entity.id)
+        emit()
+    }
+
+    override suspend fun deleteAll() {
+        items.clear()
+        emit()
+    }
+
+    private fun store(entity: ItemEntity) {
+        items[entity.id] = entity
+        if (entity.id >= nextId) {
+            nextId = entity.id + 1
+        }
         emit()
     }
 
@@ -53,22 +66,33 @@ class FakeSubscriptionDao : SubscriptionDao {
 
     override suspend fun insert(entity: SubscriptionEntity): Long {
         val id = if (entity.id == 0L) nextId++ else entity.id
-        val stored = entity.copy(id = id)
-        subs[id] = stored
-        if (id >= nextId) {
-            nextId = id + 1
-        }
-        emit()
+        store(entity.copy(id = id))
         return id
     }
 
+    override suspend fun insertAll(entities: List<SubscriptionEntity>) {
+        entities.forEach { entity -> store(entity) }
+    }
+
     override suspend fun update(entity: SubscriptionEntity) {
-        subs[entity.id] = entity
-        emit()
+        store(entity)
     }
 
     override suspend fun delete(entity: SubscriptionEntity) {
         subs.remove(entity.id)
+        emit()
+    }
+
+    override suspend fun deleteAll() {
+        subs.clear()
+        emit()
+    }
+
+    private fun store(entity: SubscriptionEntity) {
+        subs[entity.id] = entity
+        if (entity.id >= nextId) {
+            nextId = entity.id + 1
+        }
         emit()
     }
 

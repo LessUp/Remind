@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import app.lessup.remind.R
 import app.lessup.remind.data.db.ItemDao
 import app.lessup.remind.data.db.SubscriptionDao
 import app.lessup.remind.data.settings.SettingsRepository
@@ -25,6 +26,9 @@ class OverviewWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
+        if (!settings.notificationsEnabled.first() || !settings.dailyOverviewEnabled.first()) {
+            return Result.success()
+        }
         val threshold = settings.dueThresholdDays.first()
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val items = itemDao.getAll()
@@ -35,12 +39,17 @@ class OverviewWorker @AssistedInject constructor(
         val dueSubs = subs.filter { (it.endAt.toEpochDays() - today.toEpochDays()) in 0..threshold }
         val expiredSubs = subs.filter { (it.endAt.toEpochDays() - today.toEpochDays()) < 0 }
 
-        val title = "今日概览"
-        val text = buildString {
-            append("临期物品：").append(dueItems.size).append("  ·  临期会员：").append(dueSubs.size)
-            append("  ·  已过期物品：").append(expiredItems.size).append("  ·  已过期会员：").append(expiredSubs.size)
-        }
-        NotificationHelper.notify(applicationContext, 1000, NotificationHelper.CH_OVERVIEW, title, text)
+        val context = applicationContext
+        val title = context.getString(R.string.notification_overview_title)
+        val text = context.getString(
+            R.string.notification_overview_body,
+            dueItems.size,
+            dueSubs.size,
+            expiredItems.size,
+            expiredSubs.size
+        )
+        val actions = listOf(NotificationHelper.buildDisableAllAction(context))
+        NotificationHelper.notify(context, 1000, NotificationHelper.CH_OVERVIEW, title, text, actions)
         return Result.success()
     }
 }

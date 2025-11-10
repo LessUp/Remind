@@ -14,4 +14,10 @@ class SubscriptionRepository @Inject constructor(
     suspend fun add(entity: SubscriptionEntity) = dao.insert(entity)
     suspend fun update(entity: SubscriptionEntity) = dao.update(entity)
     suspend fun delete(entity: SubscriptionEntity) = dao.delete(entity)
+    suspend fun replaceAll(entities: List<SubscriptionEntity>) {
+        dao.deleteAll()
+        if (entities.isNotEmpty()) {
+            dao.insertAll(entities)
+        }
+    }
 }

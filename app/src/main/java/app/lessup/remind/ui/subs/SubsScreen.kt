@@ -1,7 +1,13 @@
 package app.lessup.remind.ui.subs
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -19,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,12 +33,15 @@ import androidx.navigation.NavController
 import app.lessup.remind.ui.navigation.NavRoutes
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.FilterChip
+import java.util.Locale
+import app.lessup.remind.R
 
 @Composable
 fun SubsScreen(nav: NavController, padding: PaddingValues, vm: SubscriptionsViewModel = hiltViewModel()) {
     val list by vm.subs.collectAsState()
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf(emptySet<SubscriptionsViewModel.UiSub.Status>()) }
+    var sort by remember { mutableStateOf(SubSort.NEXT_EXPIRY) }
     Scaffold(
         modifier = Modifier.padding(padding),
         floatingActionButton = {
@@ -50,53 +60,75 @@ fun SubsScreen(nav: NavController, padding: PaddingValues, vm: SubscriptionsView
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("搜索") }
+                    label = { Text(stringResource(R.string.subs_search_label)) }
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val allSelected = selected.isEmpty()
                     FilterChip(
                         selected = allSelected,
                         onClick = { selected = emptySet() },
-                        label = { Text("全部") }
+                        label = { Text(stringResource(R.string.subs_filter_all)) }
                     )
                     FilterChip(
                         selected = selected.contains(SubscriptionsViewModel.UiSub.Status.DUE),
                         onClick = {
                             selected = if (selected.contains(SubscriptionsViewModel.UiSub.Status.DUE)) selected - SubscriptionsViewModel.UiSub.Status.DUE else selected + SubscriptionsViewModel.UiSub.Status.DUE
                         },
-                        label = { Text("临期") }
+                        label = { Text(stringResource(R.string.subs_filter_due)) }
                     )
                     FilterChip(
                         selected = selected.contains(SubscriptionsViewModel.UiSub.Status.EXPIRED),
                         onClick = {
                             selected = if (selected.contains(SubscriptionsViewModel.UiSub.Status.EXPIRED)) selected - SubscriptionsViewModel.UiSub.Status.EXPIRED else selected + SubscriptionsViewModel.UiSub.Status.EXPIRED
                         },
-                        label = { Text("已过期") }
+                        label = { Text(stringResource(R.string.subs_filter_expired)) }
                     )
                     FilterChip(
                         selected = selected.contains(SubscriptionsViewModel.UiSub.Status.NORMAL),
                         onClick = {
                             selected = if (selected.contains(SubscriptionsViewModel.UiSub.Status.NORMAL)) selected - SubscriptionsViewModel.UiSub.Status.NORMAL else selected + SubscriptionsViewModel.UiSub.Status.NORMAL
                         },
-                        label = { Text("正常") }
+                        label = { Text(stringResource(R.string.subs_filter_normal)) }
                     )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.subs_sort_title),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    SubSort.entries.forEach { option ->
+                        FilterChip(
+                            selected = sort == option,
+                            onClick = { sort = option },
+                            label = { Text(stringResource(option.labelRes)) }
+                        )
+                    }
                 }
             }
             val filtered = list.filter { ui ->
                 (query.isBlank() || ui.entity.name.contains(query, ignoreCase = true)) &&
                 (selected.isEmpty() || selected.contains(ui.status))
             }
+            val sorted = when (sort) {
+                SubSort.NEXT_EXPIRY -> filtered.sortedBy { it.daysLeft }
+                SubSort.NAME -> filtered.sortedBy { it.entity.name.lowercase(Locale.getDefault()) }
+                SubSort.PRICE -> filtered.sortedByDescending { it.entity.priceCents }
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filtered) { ui ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { nav.navigate(NavRoutes.SubEdit + "?id=${ui.entity.id}") }
-                ) {
+                items(sorted) { ui ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { nav.navigate(NavRoutes.SubEdit + "?id=${ui.entity.id}") }
+                    ) {
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -105,19 +137,30 @@ fun SubsScreen(nav: NavController, padding: PaddingValues, vm: SubscriptionsView
                     ) {
                         Column(Modifier.weight(1f)) {
                             Text(ui.entity.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            val sub = "到期 ${ui.entity.endAt} · 剩余 ${ui.daysLeft} 天 · CNY ${(ui.entity.priceCents.toDouble()/100.0)}"
-                            Text(sub, style = MaterialTheme.typography.bodyMedium)
+                            val text = stringResource(
+                                R.string.subs_card_summary,
+                                ui.entity.endAt,
+                                ui.daysLeft,
+                                ui.entity.priceCents / 100.0
+                            )
+                            Text(text, style = MaterialTheme.typography.bodyMedium)
                         }
                         val tag = when (ui.status) {
-                            SubscriptionsViewModel.UiSub.Status.EXPIRED -> "已过期"
-                            SubscriptionsViewModel.UiSub.Status.DUE -> "临期"
-                            SubscriptionsViewModel.UiSub.Status.NORMAL -> "正常"
+                            SubscriptionsViewModel.UiSub.Status.EXPIRED -> stringResource(R.string.subs_status_expired)
+                            SubscriptionsViewModel.UiSub.Status.DUE -> stringResource(R.string.subs_status_due)
+                            SubscriptionsViewModel.UiSub.Status.NORMAL -> stringResource(R.string.subs_status_normal)
                         }
                         Text(tag, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 8.dp))
                     }
                 }
-                }
             }
         }
     }
+}
+
+private enum class SubSort(val labelRes: Int) {
+    NEXT_EXPIRY(R.string.subs_sort_expiry),
+    NAME(R.string.subs_sort_name),
+    PRICE(R.string.subs_sort_price)
+}
 }

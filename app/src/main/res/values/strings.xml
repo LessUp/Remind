@@ -1,18 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lessup Remind</string>
-    <string name="tab_items">物品</string>
-    <string name="tab_subs">会员</string>
-    <string name="add">添加</string>
-    <string name="edit">编辑</string>
-    <string name="save">保存</string>
-    <string name="name">名称</string>
-    <string name="provider">提供方</string>
-    <string name="purchase_date">购买日期</string>
-    <string name="expiry_date">到期日期</string>
-    <string name="shelf_life_days">保质期（天）</string>
-    <string name="price">价格</string>
-    <string name="currency">币种</string>
-    <string name="notes">备注</string>
+    <string name="tab_items">Items</string>
+    <string name="tab_subs">Subscriptions</string>
+    <string name="tab_stats">Insights</string>
+    <string name="tab_settings">Settings</string>
+
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="provider">Provider</string>
+    <string name="purchase_date">Purchase date</string>
+    <string name="expiry_date">Expiry date</string>
+    <string name="shelf_life_days">Shelf life (days)</string>
+    <string name="price">Price</string>
+    <string name="currency">Currency</string>
+    <string name="notes">Notes</string>
     <string name="cny">CNY</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_threshold_title">Due soon threshold (days)</string>
+    <string name="settings_reminder_time_title">Reminder time</string>
+    <string name="settings_reminder_time_hint">Daily overview notifications trigger at this time.</string>
+    <string name="settings_notifications_title">Enable notifications</string>
+    <string name="settings_notifications_desc">Turn off to silence all reminders.</string>
+    <string name="settings_item_notifications_title">Item reminders</string>
+    <string name="settings_item_notifications_desc">Notify before items expire.</string>
+    <string name="settings_sub_notifications_title">Subscription reminders</string>
+    <string name="settings_sub_notifications_desc">Notify before subscriptions end.</string>
+    <string name="settings_overview_notifications_title">Daily overview</string>
+    <string name="settings_overview_notifications_desc">Summaries of due and expired records.</string>
+    <string name="settings_snooze_title">Snooze duration: %1$d minutes</string>
+    <string name="settings_snooze_hint">Applies to Snooze actions in item and subscription notifications.</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_data_export_title">Data export</string>
+    <string name="settings_export_items_csv">Export items CSV</string>
+    <string name="settings_export_subs_csv">Export subscriptions CSV</string>
+    <string name="settings_data_import_title">Data import</string>
+    <string name="settings_import_items_csv">Import items CSV</string>
+    <string name="settings_import_subs_csv">Import subscriptions CSV</string>
+    <string name="settings_export_items_success">Items exported.</string>
+    <string name="settings_export_subs_success">Subscriptions exported.</string>
+    <string name="settings_error_read_file">Unable to read file.</string>
+    <string name="settings_error_write_file">Unable to write file.</string>
+    <string name="settings_import_items_success">Imported %1$d items.</string>
+    <string name="settings_import_items_failure">Import items failed: %1$s</string>
+    <string name="settings_import_subs_success">Imported %1$d subscriptions.</string>
+    <string name="settings_import_subs_failure">Import subscriptions failed: %1$s</string>
+    <string name="settings_backup_title">Encrypted backup</string>
+    <string name="settings_backup_password_label">Optional password</string>
+    <string name="settings_backup_import_button">Restore backup</string>
+    <string name="settings_backup_export_button">Create backup</string>
+    <string name="settings_backup_hint">Backups include settings, items and subscriptions. Use a password for AES-GCM encryption.</string>
+    <string name="settings_backup_export_success">Backup exported.</string>
+    <string name="settings_backup_export_failure">Backup export failed: %1$s</string>
+    <string name="settings_backup_import_success">Backup restored.</string>
+    <string name="settings_backup_import_failure">Backup restore failed: %1$s</string>
+    <string name="settings_password_show">Show password</string>
+    <string name="settings_password_hide">Hide password</string>
+
+    <!-- Notifications -->
+    <string name="notification_snooze_action">Snooze %1$d min</string>
+    <string name="notification_disable_action">Mute reminders</string>
+    <string name="notification_item_title">Item reminder</string>
+    <string name="notification_item_no_expiry">%1$s has no expiry. Purchased %2$d days ago.</string>
+    <string name="notification_item_overdue">%1$s expired %2$d days ago.</string>
+    <string name="notification_item_due_today">%1$s expires today.</string>
+    <string name="notification_item_due_future">%1$s expires in %2$d days.</string>
+    <string name="notification_sub_title">Subscription reminder</string>
+    <string name="notification_sub_overdue">%1$s expired %2$d days ago.</string>
+    <string name="notification_sub_due_today">%1$s ends today.</string>
+    <string name="notification_sub_due_future">%1$s ends in %2$d days.</string>
+    <string name="notification_overview_title">Today’s overview</string>
+    <string name="notification_overview_body">Due items: %1$d · Due subscriptions: %2$d · Overdue items: %3$d · Overdue subscriptions: %4$d</string>
+
+    <!-- Items -->
+    <string name="items_search_label">Search</string>
+    <string name="items_filter_all">All</string>
+    <string name="items_filter_due">Due soon</string>
+    <string name="items_filter_expired">Expired</string>
+    <string name="items_filter_no_expiry">No expiry</string>
+    <string name="items_filter_normal">Normal</string>
+    <string name="items_sort_title">Sort</string>
+    <string name="items_sort_expiry">Next expiry</string>
+    <string name="items_sort_name">Name</string>
+    <string name="items_sort_recent">Newest purchases</string>
+    <string name="items_card_no_expiry">Purchased %1$s · %2$d days since purchase</string>
+    <string name="items_card_expired">Purchased %1$s · Expired %2$d days ago</string>
+    <string name="items_card_due">Purchased %1$s · %2$d days until expiry</string>
+    <string name="items_card_normal">Purchased %1$s · %2$d days until expiry</string>
+    <string name="items_status_no_expiry">No expiry</string>
+    <string name="items_status_expired">Expired</string>
+    <string name="items_status_due">Due soon</string>
+    <string name="items_status_normal">Normal</string>
+    <string name="item_edit_purchase_date">Purchase date: %1$s</string>
+    <string name="item_edit_select_date">Select date</string>
+    <string name="item_edit_expiry_date">Expiry date: %1$s</string>
+    <string name="item_edit_expiry_unset">Not set</string>
+    <string name="item_edit_set_expiry">Set expiry</string>
+
+    <!-- Subscriptions -->
+    <string name="subs_search_label">Search</string>
+    <string name="subs_filter_all">All</string>
+    <string name="subs_filter_due">Due soon</string>
+    <string name="subs_filter_expired">Expired</string>
+    <string name="subs_filter_normal">Normal</string>
+    <string name="subs_sort_title">Sort</string>
+    <string name="subs_sort_expiry">Next renewal</string>
+    <string name="subs_sort_name">Name</string>
+    <string name="subs_sort_price">Price</string>
+    <string name="subs_card_summary">Ends %1$s · %2$d days left · %.2f CNY</string>
+    <string name="subs_status_expired">Expired</string>
+    <string name="subs_status_due">Due soon</string>
+    <string name="subs_status_normal">Active</string>
+    <string name="subs_price_label">Price (CNY)</string>
+    <string name="subs_end_date">Ends on %1$s</string>
+    <string name="subs_set_end_date">Set end date</string>
+    <string name="subs_auto_renew">Auto renew</string>
+
+    <!-- Stats -->
+    <string name="stats_title">Insights</string>
+    <string name="stats_items_due">Items due within %1$d days: %2$d</string>
+    <string name="stats_items_expired">Expired items: %1$d</string>
+    <string name="stats_subs_due">Subscriptions due within %1$d days: %2$d</string>
+    <string name="stats_subs_expired">Expired subscriptions: %1$d</string>
+    <string name="stats_monthly_trend_title">Monthly trends (last 6 months)</string>
+    <string name="stats_monthly_trend_entry">%1$s · Expiring items: %2$d · Overdue items: %3$d · Subscriptions ending: %4$d · Cost: %.2f CNY</string>
+    <string name="stats_export_button">Export trends CSV</string>
+    <string name="stats_export_success">Trends exported.</string>
+    <string name="stats_export_failure">Trend export failed: %1$s</string>
+    <string name="stats_export_error_write">Unable to write CSV.</string>
+
+    <!-- Widget -->
+    <string name="widget_title">Reminders</string>
+    <string name="widget_items_value">Due items: %1$d</string>
+    <string name="widget_subs_value">Due subscriptions: %1$d</string>
 </resources>

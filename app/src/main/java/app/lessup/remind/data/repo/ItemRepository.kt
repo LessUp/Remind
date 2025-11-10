@@ -14,4 +14,10 @@ class ItemRepository @Inject constructor(
     suspend fun add(entity: ItemEntity) = dao.insert(entity)
     suspend fun update(entity: ItemEntity) = dao.update(entity)
     suspend fun delete(entity: ItemEntity) = dao.delete(entity)
+    suspend fun replaceAll(entities: List<ItemEntity>) {
+        dao.deleteAll()
+        if (entities.isNotEmpty()) {
+            dao.insertAll(entities)
+        }
+    }
 }

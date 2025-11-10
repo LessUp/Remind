@@ -31,8 +31,9 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Run unit tests and assemble Debug
-        run: gradle test assembleDebug --stacktrace
+      - name: Run unit tests, lint and assemble Debug
+        run: |
+          gradle spotlessCheck test assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4

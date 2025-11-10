@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lessup Remind</string>
+    <string name="tab_items">物品</string>
+    <string name="tab_subs">会员</string>
+    <string name="tab_stats">统计</string>
+    <string name="tab_settings">设置</string>
+
+    <string name="add">添加</string>
+    <string name="edit">编辑</string>
+    <string name="save">保存</string>
+    <string name="name">名称</string>
+    <string name="provider">提供方</string>
+    <string name="purchase_date">购买日期</string>
+    <string name="expiry_date">到期日期</string>
+    <string name="shelf_life_days">保质期（天）</string>
+    <string name="price">价格</string>
+    <string name="currency">币种</string>
+    <string name="notes">备注</string>
+    <string name="cny">CNY</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_threshold_title">临期阈值（天）</string>
+    <string name="settings_reminder_time_title">提醒时间</string>
+    <string name="settings_reminder_time_hint">每日概览通知会在此时间触发。</string>
+    <string name="settings_notifications_title">启用通知</string>
+    <string name="settings_notifications_desc">关闭后将静默所有提醒。</string>
+    <string name="settings_item_notifications_title">物品提醒</string>
+    <string name="settings_item_notifications_desc">在物品临期或到期前发送提醒。</string>
+    <string name="settings_sub_notifications_title">会员提醒</string>
+    <string name="settings_sub_notifications_desc">在会员临期或到期前发送提醒。</string>
+    <string name="settings_overview_notifications_title">每日概览</string>
+    <string name="settings_overview_notifications_desc">汇总临期和已过期项目。</string>
+    <string name="settings_snooze_title">贪睡间隔：%1$d 分钟</string>
+    <string name="settings_snooze_hint">适用于物品和会员通知中的“稍后提醒”。</string>
+    <string name="settings_theme_title">主题</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_data_export_title">数据导出</string>
+    <string name="settings_export_items_csv">导出物品 CSV</string>
+    <string name="settings_export_subs_csv">导出会员 CSV</string>
+    <string name="settings_data_import_title">数据导入</string>
+    <string name="settings_import_items_csv">导入物品 CSV</string>
+    <string name="settings_import_subs_csv">导入会员 CSV</string>
+    <string name="settings_export_items_success">物品导出完成。</string>
+    <string name="settings_export_subs_success">会员导出完成。</string>
+    <string name="settings_error_read_file">无法读取文件。</string>
+    <string name="settings_error_write_file">无法写入文件。</string>
+    <string name="settings_import_items_success">成功导入 %1$d 条物品。</string>
+    <string name="settings_import_items_failure">导入物品失败：%1$s</string>
+    <string name="settings_import_subs_success">成功导入 %1$d 条会员。</string>
+    <string name="settings_import_subs_failure">导入会员失败：%1$s</string>
+    <string name="settings_backup_title">加密备份</string>
+    <string name="settings_backup_password_label">可选密码</string>
+    <string name="settings_backup_import_button">恢复备份</string>
+    <string name="settings_backup_export_button">创建备份</string>
+    <string name="settings_backup_hint">备份包含设置、物品和会员数据，设置密码后将使用 AES-GCM 加密。</string>
+    <string name="settings_backup_export_success">备份已导出。</string>
+    <string name="settings_backup_export_failure">备份导出失败：%1$s</string>
+    <string name="settings_backup_import_success">备份已恢复。</string>
+    <string name="settings_backup_import_failure">备份恢复失败：%1$s</string>
+    <string name="settings_password_show">显示密码</string>
+    <string name="settings_password_hide">隐藏密码</string>
+
+    <!-- Notifications -->
+    <string name="notification_snooze_action">稍后提醒 %1$d 分钟</string>
+    <string name="notification_disable_action">关闭提醒</string>
+    <string name="notification_item_title">物品到期提醒</string>
+    <string name="notification_item_no_expiry">%1$s 无保质期，已购 %2$d 天。</string>
+    <string name="notification_item_overdue">%1$s 已过期 %2$d 天。</string>
+    <string name="notification_item_due_today">%1$s 今天到期。</string>
+    <string name="notification_item_due_future">%1$s 距离到期还有 %2$d 天。</string>
+    <string name="notification_sub_title">会员到期提醒</string>
+    <string name="notification_sub_overdue">%1$s 已过期 %2$d 天。</string>
+    <string name="notification_sub_due_today">%1$s 今天到期。</string>
+    <string name="notification_sub_due_future">%1$s 距离到期还有 %2$d 天。</string>
+    <string name="notification_overview_title">今日概览</string>
+    <string name="notification_overview_body">临期物品：%1$d · 临期会员：%2$d · 已过期物品：%3$d · 已过期会员：%4$d</string>
+
+    <!-- Items -->
+    <string name="items_search_label">搜索</string>
+    <string name="items_filter_all">全部</string>
+    <string name="items_filter_due">临期</string>
+    <string name="items_filter_expired">已过期</string>
+    <string name="items_filter_no_expiry">无保质期</string>
+    <string name="items_filter_normal">正常</string>
+    <string name="items_sort_title">排序</string>
+    <string name="items_sort_expiry">按到期日</string>
+    <string name="items_sort_name">按名称</string>
+    <string name="items_sort_recent">按购买时间</string>
+    <string name="items_card_no_expiry">购买 %1$s · 已购 %2$d 天</string>
+    <string name="items_card_expired">购买 %1$s · 已过期 %2$d 天</string>
+    <string name="items_card_due">购买 %1$s · 距到期 %2$d 天</string>
+    <string name="items_card_normal">购买 %1$s · 距到期 %2$d 天</string>
+    <string name="items_status_no_expiry">无保质期</string>
+    <string name="items_status_expired">已过期</string>
+    <string name="items_status_due">临期</string>
+    <string name="items_status_normal">正常</string>
+    <string name="item_edit_purchase_date">购买日期：%1$s</string>
+    <string name="item_edit_select_date">选择日期</string>
+    <string name="item_edit_expiry_date">到期日期：%1$s</string>
+    <string name="item_edit_expiry_unset">未设置</string>
+    <string name="item_edit_set_expiry">设置到期日</string>
+
+    <!-- Subscriptions -->
+    <string name="subs_search_label">搜索</string>
+    <string name="subs_filter_all">全部</string>
+    <string name="subs_filter_due">临期</string>
+    <string name="subs_filter_expired">已过期</string>
+    <string name="subs_filter_normal">正常</string>
+    <string name="subs_sort_title">排序</string>
+    <string name="subs_sort_expiry">按到期日</string>
+    <string name="subs_sort_name">按名称</string>
+    <string name="subs_sort_price">按价格</string>
+    <string name="subs_card_summary">到期 %1$s · 剩余 %2$d 天 · %.2f CNY</string>
+    <string name="subs_status_expired">已过期</string>
+    <string name="subs_status_due">临期</string>
+    <string name="subs_status_normal">正常</string>
+    <string name="subs_price_label">价格（CNY）</string>
+    <string name="subs_end_date">到期日期：%1$s</string>
+    <string name="subs_set_end_date">设置到期日</string>
+    <string name="subs_auto_renew">自动续费</string>
+
+    <!-- Stats -->
+    <string name="stats_title">统计</string>
+    <string name="stats_items_due">未来 %1$d 天临期物品：%2$d</string>
+    <string name="stats_items_expired">已过期物品：%1$d</string>
+    <string name="stats_subs_due">未来 %1$d 天临期会员：%2$d</string>
+    <string name="stats_subs_expired">已过期会员：%1$d</string>
+    <string name="stats_monthly_trend_title">近 6 个月趋势</string>
+    <string name="stats_monthly_trend_entry">%1$s · 当月到期物品：%2$d · 当月超期物品：%3$d · 到期会员：%4$d · 支出：%.2f CNY</string>
+    <string name="stats_export_button">导出趋势 CSV</string>
+    <string name="stats_export_success">趋势已导出。</string>
+    <string name="stats_export_failure">趋势导出失败：%1$s</string>
+    <string name="stats_export_error_write">无法写入 CSV。</string>
+
+    <!-- Widget -->
+    <string name="widget_title">提醒概览</string>
+    <string name="widget_items_value">临期物品：%1$d</string>
+    <string name="widget_subs_value">临期会员：%1$d</string>
+</resources>
