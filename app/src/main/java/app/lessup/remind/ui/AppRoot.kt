@@ -9,8 +9,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,7 +47,7 @@ fun AppRoot() {
                             }
                         },
                         icon = { Icon(Icons.Default.List, contentDescription = null) },
-                        label = null
+                        label = { Text(text = stringResource(R.string.tab_items)) }
                     )
                     NavigationBarItem(
                         selected = current == NavRoutes.Subs,
@@ -57,7 +59,7 @@ fun AppRoot() {
                             }
                         },
                         icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        label = null
+                        label = { Text(text = stringResource(R.string.tab_subs)) }
                     )
                     NavigationBarItem(
                         selected = current == NavRoutes.Stats,
@@ -69,7 +71,7 @@ fun AppRoot() {
                             }
                         },
                         icon = { Icon(Icons.Default.AutoGraph, contentDescription = null) },
-                        label = null
+                        label = { Text(text = stringResource(R.string.tab_stats)) }
                     )
                     NavigationBarItem(
                         selected = current == NavRoutes.Settings,
@@ -81,7 +83,7 @@ fun AppRoot() {
                             }
                         },
                         icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                        label = null
+                        label = { Text(text = stringResource(R.string.tab_settings)) }
                     )
                 }
             }

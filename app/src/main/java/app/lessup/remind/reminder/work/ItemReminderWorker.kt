@@ -5,19 +5,23 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import app.lessup.remind.R
 import app.lessup.remind.data.db.ItemDao
+import app.lessup.remind.data.settings.SettingsRepository
 import app.lessup.remind.reminder.NotificationHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.coroutines.flow.first
 
 @HiltWorker
 class ItemReminderWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    private val itemDao: ItemDao
+    private val itemDao: ItemDao,
+    private val settingsRepository: SettingsRepository
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
@@ -30,17 +34,28 @@ class ItemReminderWorker @AssistedInject constructor(
         val e = itemDao.getById(id) ?: return Result.success()
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val daysTo = e.expiryAt?.let { (it.toEpochDays() - today.toEpochDays()) }
-        val title = "物品到期提醒"
-        val text = if (daysTo == null) {
-            "${e.name} 无保质期；已购 ${(today.toEpochDays() - e.purchasedAt.toEpochDays())} 天"
-        } else if (daysTo < 0) {
-            "${e.name} 已过期 ${-daysTo} 天"
-        } else if (daysTo == 0) {
-            "${e.name} 今天到期"
-        } else {
-            "${e.name} 距到期 ${daysTo} 天"
+        val context = applicationContext
+        val title = context.getString(R.string.notification_item_title)
+        val purchaseDays = today.toEpochDays() - e.purchasedAt.toEpochDays()
+        val text = when {
+            daysTo == null -> context.getString(R.string.notification_item_no_expiry, e.name, purchaseDays)
+            daysTo < 0 -> context.getString(R.string.notification_item_overdue, e.name, -daysTo)
+            daysTo == 0 -> context.getString(R.string.notification_item_due_today, e.name)
+            else -> context.getString(R.string.notification_item_due_future, e.name, daysTo)
         }
-        NotificationHelper.notify(applicationContext, (2000 + id).toInt(), NotificationHelper.CH_ITEMS, title, text)
+        val snoozeMinutes = settingsRepository.snoozeMinutes.first()
+        val actions = listOf(
+            NotificationHelper.buildSnoozeItemAction(context, e.id, snoozeMinutes),
+            NotificationHelper.buildDisableAllAction(context)
+        )
+        NotificationHelper.notify(
+            context,
+            (2000 + id).toInt(),
+            NotificationHelper.CH_ITEMS,
+            title,
+            text,
+            actions
+        )
         return Result.success()
     }
 }

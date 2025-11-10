@@ -1,21 +1,34 @@
 package app.lessup.remind.ui.subs
 
 import android.app.DatePickerDialog
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.datetime.LocalDate
 import kotlin.math.roundToLong
+import app.lessup.remind.R
 
 @Composable
 fun SubEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: SubEditViewModel = hiltViewModel()) {
@@ -52,19 +65,19 @@ fun SubEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: Sub
             OutlinedTextField(
                 value = form.name,
                 onValueChange = { form = form.copy(name = it) },
-                label = { Text("名称") },
+                label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = form.provider ?: "",
                 onValueChange = { form = form.copy(provider = it) },
-                label = { Text("提供方") },
+                label = { Text(stringResource(R.string.provider)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "购买日期：${form.purchasedAt}",
+                    text = stringResource(R.string.item_edit_purchase_date, form.purchasedAt),
                     modifier = Modifier
                         .weight(1f)
                         .padding(top = 16.dp)
@@ -78,7 +91,7 @@ fun SubEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: Sub
                         date.monthNumber - 1,
                         date.dayOfMonth
                     ).show()
-                }) { Text("选择日期") }
+                }) { Text(stringResource(R.string.item_edit_select_date)) }
             }
 
             OutlinedTextField(
@@ -89,14 +102,14 @@ fun SubEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: Sub
                     val cents = runCatching { (sanitized.toDouble() * 100).roundToLong() }.getOrDefault(0)
                     form = form.copy(priceCents = cents)
                 },
-                label = { Text("价格 (CNY)") },
+                label = { Text(stringResource(R.string.subs_price_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default
             )
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "到期日期：${form.endAt}",
+                    text = stringResource(R.string.subs_end_date, form.endAt),
                     modifier = Modifier
                         .weight(1f)
                         .padding(top = 16.dp)
@@ -110,25 +123,25 @@ fun SubEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: Sub
                         date.monthNumber - 1,
                         date.dayOfMonth
                     ).show()
-                }) { Text("设置到期日") }
+                }) { Text(stringResource(R.string.subs_set_end_date)) }
             }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("自动续费")
+                Text(stringResource(R.string.subs_auto_renew))
                 Switch(checked = form.autoRenew, onCheckedChange = { form = form.copy(autoRenew = it) })
             }
 
             OutlinedTextField(
                 value = form.notes ?: "",
                 onValueChange = { form = form.copy(notes = it) },
-                label = { Text("备注") },
+                label = { Text(stringResource(R.string.notes)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(onClick = {
                 vm.save(form)
                 nav.navigateUp()
-            }, modifier = Modifier.fillMaxWidth()) { Text("保存") }
+            }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }
         }
     }
 }

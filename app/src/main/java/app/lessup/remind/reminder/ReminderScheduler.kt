@@ -20,12 +20,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -44,11 +40,15 @@ class ReminderScheduler @Inject constructor(
     }
 
     suspend fun scheduleDailyOverview() {
+        if (!settings.notificationsEnabled.first() || !settings.dailyOverviewEnabled.first()) {
+            workManager.cancelUniqueWork(WORK_DAILY_OVERVIEW)
+            return
+        }
         val hour = settings.reminderHour.first()
         val minute = settings.reminderMinute.first()
-        val initialDelay = millisUntilNextTime(hour, minute)
+        val delay = ReminderPlanner.millisUntilNextTrigger(hour, minute, Clock.System.now(), TimeZone.currentSystemDefault())
         val req = PeriodicWorkRequestBuilder<OverviewWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .addTag(WORK_DAILY_OVERVIEW)
             .build()
         workManager.enqueueUniquePeriodicWork(WORK_DAILY_OVERVIEW, ExistingPeriodicWorkPolicy.UPDATE, req)
@@ -56,39 +56,28 @@ class ReminderScheduler @Inject constructor(
 
     suspend fun scheduleForItem(e: ItemEntity) {
         workManager.cancelAllWorkByTag(itemTag(e.id))
+        if (!settings.notificationsEnabled.first() || !settings.itemRemindersEnabled.first()) {
+            return
+        }
         val hour = settings.reminderHour.first()
         val minute = settings.reminderMinute.first()
-        val offsets = listOf(7, 3, 1, 0, -1)
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val expiry = e.expiryAt ?: return
-        offsets.forEach { d ->
-            val date = when {
-                d > 0 -> expiry.plus(DatePeriod(days = -d))
-                d == 0 -> expiry
-                else -> expiry.plus(DatePeriod(days = -d))
-            }
-            if (date >= today) {
-                enqueueItemAt(e.id, date, hour, minute)
-            }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        ReminderPlanner.computeScheduleDates(expiry, listOf(7, 3, 1, 0, -1), today).forEach { date ->
+            enqueueItemAt(e.id, date, hour, minute)
         }
     }
 
     suspend fun scheduleForSub(s: SubscriptionEntity) {
         workManager.cancelAllWorkByTag(subTag(s.id))
+        if (!settings.notificationsEnabled.first() || !settings.subRemindersEnabled.first()) {
+            return
+        }
         val hour = settings.reminderHour.first()
         val minute = settings.reminderMinute.first()
-        val offsets = listOf(7, 3, 1, 0, -1)
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-        val end = s.endAt
-        offsets.forEach { d ->
-            val date = when {
-                d > 0 -> end.plus(DatePeriod(days = -d))
-                d == 0 -> end
-                else -> end.plus(DatePeriod(days = -d))
-            }
-            if (date >= today) {
-                enqueueSubAt(s.id, date, hour, minute)
-            }
+        ReminderPlanner.computeScheduleDates(s.endAt, listOf(7, 3, 1, 0, -1), today).forEach { date ->
+            enqueueSubAt(s.id, date, hour, minute)
         }
     }
 
@@ -101,13 +90,19 @@ class ReminderScheduler @Inject constructor(
     }
 
     suspend fun rebuildAll() {
-        scheduleDailyOverview()
-        itemDao.getAll().forEach { scheduleForItem(it) }
-        subDao.getAll().forEach { scheduleForSub(it) }
+        if (settings.notificationsEnabled.first()) {
+            scheduleDailyOverview()
+            itemDao.getAll().forEach { scheduleForItem(it) }
+            subDao.getAll().forEach { scheduleForSub(it) }
+        } else {
+            workManager.cancelUniqueWork(WORK_DAILY_OVERVIEW)
+            itemDao.getAll().forEach { workManager.cancelAllWorkByTag(itemTag(it.id)) }
+            subDao.getAll().forEach { workManager.cancelAllWorkByTag(subTag(it.id)) }
+        }
     }
 
     private fun enqueueItemAt(id: Long, date: LocalDate, hour: Int, minute: Int) {
-        val delayMs = delayMsTo(date, hour, minute)
+        val delayMs = ReminderPlanner.delayTo(date, hour, minute, Clock.System.now(), TimeZone.currentSystemDefault())
         if (delayMs <= 0) return
         val req = OneTimeWorkRequestBuilder<ItemReminderWorker>()
             .setInputData(workDataOf(ItemReminderWorker.KEY_ID to id))
@@ -118,7 +113,7 @@ class ReminderScheduler @Inject constructor(
     }
 
     private fun enqueueSubAt(id: Long, date: LocalDate, hour: Int, minute: Int) {
-        val delayMs = delayMsTo(date, hour, minute)
+        val delayMs = ReminderPlanner.delayTo(date, hour, minute, Clock.System.now(), TimeZone.currentSystemDefault())
         if (delayMs <= 0) return
         val req = OneTimeWorkRequestBuilder<SubReminderWorker>()
             .setInputData(workDataOf(SubReminderWorker.KEY_ID to id))
@@ -128,23 +123,25 @@ class ReminderScheduler @Inject constructor(
         workManager.enqueueUniqueWork("sub_${id}_${date}", ExistingWorkPolicy.REPLACE, req)
     }
 
-    private fun millisUntilNextTime(hour: Int, minute: Int): Long {
-        val now = Clock.System.now()
-        val tz = TimeZone.currentSystemDefault()
-        val today = now.toLocalDateTime(tz).date
-        val candidate = LocalDateTime(today.year, today.monthNumber, today.dayOfMonth, hour, minute)
-            .toInstant(tz)
-        val target = if (candidate > now) candidate else {
-            val nextDay = today.plus(DatePeriod(days = 1))
-            LocalDateTime(nextDay.year, nextDay.monthNumber, nextDay.dayOfMonth, hour, minute).toInstant(tz)
-        }
-        return target.toEpochMilliseconds() - now.toEpochMilliseconds()
+    suspend fun snoozeItem(id: Long) {
+        if (!settings.notificationsEnabled.first() || !settings.itemRemindersEnabled.first()) return
+        val minutes = settings.snoozeMinutes.first().coerceAtLeast(1)
+        val req = OneTimeWorkRequestBuilder<ItemReminderWorker>()
+            .setInputData(workDataOf(ItemReminderWorker.KEY_ID to id))
+            .setInitialDelay(minutes.toLong(), TimeUnit.MINUTES)
+            .addTag(itemTag(id))
+            .build()
+        workManager.enqueueUniqueWork("item_${id}_snooze", ExistingWorkPolicy.REPLACE, req)
     }
 
-    private fun delayMsTo(date: LocalDate, hour: Int, minute: Int): Long {
-        val now = Clock.System.now()
-        val tz = TimeZone.currentSystemDefault()
-        val dt = LocalDateTime(date.year, date.monthNumber, date.dayOfMonth, hour, minute).toInstant(tz)
-        return dt.toEpochMilliseconds() - now.toEpochMilliseconds()
+    suspend fun snoozeSub(id: Long) {
+        if (!settings.notificationsEnabled.first() || !settings.subRemindersEnabled.first()) return
+        val minutes = settings.snoozeMinutes.first().coerceAtLeast(1)
+        val req = OneTimeWorkRequestBuilder<SubReminderWorker>()
+            .setInputData(workDataOf(SubReminderWorker.KEY_ID to id))
+            .setInitialDelay(minutes.toLong(), TimeUnit.MINUTES)
+            .addTag(subTag(id))
+            .build()
+        workManager.enqueueUniqueWork("sub_${id}_snooze", ExistingWorkPolicy.REPLACE, req)
     }
 }

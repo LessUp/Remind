@@ -12,15 +12,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
+import app.lessup.remind.R
 
 @Composable
 fun ItemEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: ItemEditViewModel = hiltViewModel()) {
@@ -55,13 +62,13 @@ fun ItemEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: It
             OutlinedTextField(
                 value = form.name,
                 onValueChange = { form = form.copy(name = it) },
-                label = { Text("名称") },
+                label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "购买日期：${form.purchasedAt}",
+                    text = stringResource(R.string.item_edit_purchase_date, form.purchasedAt),
                     modifier = Modifier
                         .weight(1f)
                         .padding(top = 16.dp)
@@ -75,7 +82,7 @@ fun ItemEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: It
                         date.monthNumber - 1,
                         date.dayOfMonth
                     ).show()
-                }) { Text("选择日期") }
+                }) { Text(stringResource(R.string.item_edit_select_date)) }
             }
 
             OutlinedTextField(
@@ -84,14 +91,18 @@ fun ItemEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: It
                     shelfDaysText = txt.filter { it.isDigit() }
                     form = form.copy(shelfLifeDays = shelfDaysText.toIntOrNull())
                 },
-                label = { Text("保质期（天）") },
+                label = { Text(stringResource(R.string.shelf_life_days)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default
             )
 
             Row(modifier = Modifier.fillMaxWidth()) {
+                val fallbackExpiry = form.shelfLifeDays?.let { form.purchasedAt.plus(kotlinx.datetime.DatePeriod(days = it)) }
                 Text(
-                    text = "到期日期：${form.expiryAt ?: form.shelfLifeDays?.let { form.purchasedAt.plus(kotlinx.datetime.DatePeriod(days = it)) } ?: "未设置"}",
+                    text = stringResource(
+                        R.string.item_edit_expiry_date,
+                        (form.expiryAt ?: fallbackExpiry)?.toString() ?: stringResource(R.string.item_edit_expiry_unset)
+                    ),
                     modifier = Modifier
                         .weight(1f)
                         .padding(top = 16.dp)
@@ -105,20 +116,20 @@ fun ItemEditScreen(nav: NavController, padding: PaddingValues, id: Long?, vm: It
                         date.monthNumber - 1,
                         date.dayOfMonth
                     ).show()
-                }) { Text("设置到期日") }
+                }) { Text(stringResource(R.string.item_edit_set_expiry)) }
             }
 
             OutlinedTextField(
                 value = form.notes ?: "",
                 onValueChange = { form = form.copy(notes = it) },
-                label = { Text("备注") },
+                label = { Text(stringResource(R.string.notes)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(onClick = {
                 vm.save(form.copy(expiryAt = form.expiryAt))
                 nav.navigateUp()
-            }, modifier = Modifier.fillMaxWidth()) { Text("保存") }
+            }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }
         }
     }
 }

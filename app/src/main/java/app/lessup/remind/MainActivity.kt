@@ -9,8 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import dagger.hilt.android.AndroidEntryPoint
 import app.lessup.remind.ui.AppRoot
 import app.lessup.remind.reminder.ReminderScheduler
@@ -28,11 +26,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launchWhenCreated {
             scheduler.scheduleDailyOverview()
         }
-        setContent {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                AppRoot()
-            }
-        }
+        setContent { AppRoot() }
     }
 
     private fun requestNotifPermissionIfNeeded() {
